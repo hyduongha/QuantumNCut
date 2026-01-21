@@ -1,0 +1,2 @@
+num_qubits,k,cost_with_mems,cost_without_mems,i_with_mems,i_without_mems
+3,2,0.0008631872998106572,0.0008633129521291405,62.72,66.76
