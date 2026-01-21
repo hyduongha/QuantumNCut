@@ -10,6 +10,7 @@ from skimage import io, color
 import os
 from sklearn.neighbors import NearestNeighbors
 import pandas as pd
+import re
 
 def compute_weight_matrix_coo_knn(image, sigma_i, sigma_x, k_neighbors=10):
     h, w, c = image.shape
@@ -44,7 +45,7 @@ def compute_laplacian_coo(W_coo):
     L_coo = D_coo - W_coo
     return L_coo, D_coo
 
-def compute_ncut_lanczos(W_coo, k=2, max_iter=100, tol=1e-5):
+def compute_ncut_lanczos(W_coo, k=2, max_iter=30, tol=1e-5):
     n = W_coo.shape[0]
 
     # --- Normalize W ---
@@ -181,13 +182,11 @@ def normalized_cuts_eigsh(imagename, image_path, output_path, k, sigma_i, sigma_
     image = color.gray2rgb(image) if image.ndim == 2 else image[:, :, :3] if image.shape[2] == 4 else image
     image = image / 255.0
 
-    start = time.perf_counter() 
-
     W_coo = compute_weight_matrix_coo_knn(image, sigma_i, sigma_x)
-    vecs = compute_ncut_lanczos(W_coo, k)
+    start = time.perf_counter()
+    vecs = compute_ncut_lanczos(W_coo, k, max_iter=k+20)
 
     end = time.perf_counter()
-    print("Thời gian thực thi Ncut:", end - start, "giây")
 
     labels = assign_labels(vecs, k)
     save_segmentation(image, labels, k, output_path + ".jpg")
@@ -197,13 +196,11 @@ def normalized_cuts_eigsh(imagename, image_path, output_path, k, sigma_i, sigma_
     return start, end
 
 def main():
-    # input_path = "G:\Ket qua Nhu Y_dang lam\\4x8_bigsize\split_image_Hai"
-    # output_path = "G:\Ket qua Nhu Y_dang lam\\4x8_bigsize\split_image_segmentation_Hai"
-    # excel_path = os.path.join(output_path, "G:\Ket qua Nhu Y_dang lam\\4x8_bigsize\log.xlsx")  # file Excel lưu 3 cột
 
-    input_path = "./data/split_image_Hai"
-    output_path = "./data/split_image_segmentation_Hai"
-    excel_path = os.path.join(output_path, "./data/log.xlsx")  # file Excel lưu
+    excel_path = os.path.join("/content/drive/MyDrive/Test/log1.xlsx")  # file Excel lưu
+    input_path = "/content/drive/MyDrive/Test/in1"
+    output_path = "/content/drive/MyDrive/Test/out1"
+    
     if not os.path.isdir(input_path):
         print(f"❌ Thư mục {input_path} không tồn tại!")
         exit()
@@ -216,7 +213,8 @@ def main():
     log_rows = []  # mỗi phần tử: (tên file, bắt đầu, kết thúc)
 
     for idx, file_name in enumerate(image_files, start=1):
-        k = 3
+        k = int(re.search(r"_(\d+)\.png$", file_name).group(1))
+
         image_path = os.path.join(input_path, file_name)
         print(f"📷 Đang xử lý ảnh {idx}: {image_path}")
 
@@ -226,17 +224,26 @@ def main():
         save_image_name = os.path.join(output_path, f"{os.path.splitext(file_name)[0]}")
 
         bat_dau, ket_thuc = normalized_cuts_eigsh(file_name, image_path, save_image_name, k, sigma_i, sigma_x)
-        log_rows.append((file_name, bat_dau, ket_thuc))
-    
-    # Ghi một lần sau cùng
-    if log_rows:
-        new_df = pd.DataFrame(log_rows, columns=["Tên file", "Bắt đầu", "Kết thúc"])
-        if os.path.exists(excel_path):
-            combined = pd.concat([pd.read_excel(excel_path), new_df], ignore_index=True)
-        else:
-            combined = new_df
-        combined.to_excel(excel_path, index=False)
-        print(f"📝 Đã ghi log vào: {excel_path}")
+        new_df = pd.DataFrame( [(file_name, bat_dau, ket_thuc)], columns=["Tên file", "Bắt đầu", "Kết thúc"] )
 
+        if os.path.exists(excel_path):
+            with pd.ExcelWriter(
+                excel_path,
+                engine="openpyxl",
+                mode="a",
+                if_sheet_exists="overlay"
+            ) as writer:
+                startrow = writer.sheets[next(iter(writer.sheets))].max_row
+                new_df.to_excel(
+                    writer,
+                    index=False,
+                    header=False,
+                    startrow=startrow
+                )
+        else:
+            new_df.to_excel(excel_path, index=False)
+
+        print(f"📝 Đã ghi tiếp vào: {excel_path}")
+    
 if __name__ == "__main__":
     main()
