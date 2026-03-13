@@ -195,11 +195,16 @@ def normalized_cuts_eigsh(imagename, image_path, output_path, k, sigma_i, sigma_
 
     return start, end
 
-def main():
+def main(name):
 
-    excel_path = os.path.join("/content/drive/MyDrive/Test/log1.xlsx")  # file Excel lưu
-    input_path = "/content/drive/MyDrive/Test/in1"
-    output_path = "/content/drive/MyDrive/Test/out1"
+    #excel_path = os.path.join("/content/drive/MyDrive/Test/log1.xlsx")  # file Excel lưu
+    #input_path = "/content/drive/MyDrive/Test/in1"
+    #output_path = "/content/drive/MyDrive/Test/out1"
+
+    numbers = re.findall(r'\d+', name)
+    input_path = "/content/drive/MyDrive/TestK6_60/IN/" + name
+    excel_path = os.path.join("/content/drive/MyDrive/TestK6_60/LOG/log"+numbers[0]+".xlsx")  # file Excel lưu
+    output_path = "/content/drive/MyDrive/TestK6_60/OUT/out"+numbers[0]
     
     if not os.path.isdir(input_path):
         print(f"❌ Thư mục {input_path} không tồn tại!")
@@ -246,4 +251,7 @@ def main():
         print(f"📝 Đã ghi tiếp vào: {excel_path}")
     
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("nameImage", type=str)
+    args = parser.parse_args()
+    main(args.nameImage)
