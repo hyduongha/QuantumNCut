@@ -11,7 +11,7 @@ import os
 from sklearn.neighbors import NearestNeighbors
 import pandas as pd
 import re
-
+import argparse
 def compute_weight_matrix_coo_knn(image, sigma_i, sigma_x, k_neighbors=10):
     h, w, c = image.shape
     N = h * w
