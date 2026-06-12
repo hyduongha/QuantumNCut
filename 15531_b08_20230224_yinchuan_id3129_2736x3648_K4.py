@@ -45,7 +45,7 @@ def compute_laplacian_coo(W_coo):
     L_coo = D_coo - W_coo
     return L_coo, D_coo
 
-def compute_ncut_lanczos(W_coo, k=2, max_iter=30, tol=1e-5, ncut_or_quantum):
+def compute_ncut_lanczos(W_coo, k=2, max_iter=30, tol=1e-5):
     n = W_coo.shape[0]
 
     # --- Normalize W ---
@@ -57,9 +57,9 @@ def compute_ncut_lanczos(W_coo, k=2, max_iter=30, tol=1e-5, ncut_or_quantum):
     W_norm = sp.coo_matrix((data, (row, col)), shape=W_coo.shape)
 
     # --- A = I - W_norm ---
-    def A_mul_ncut(x):
+    # def A_mul_ncut(x):
         # Classical version
-        return x - W_norm @ x
+        # return x - W_norm @ x
     def A_mul(x):
         # Nếu muốn giữ quantum hook:
         from qmatmul import qmatmul_qiskit
@@ -79,10 +79,7 @@ def compute_ncut_lanczos(W_coo, k=2, max_iter=30, tol=1e-5, ncut_or_quantum):
     q_prev = np.zeros_like(q)
 
     for _ in range(max_iter):
-        if (ncut_or_quantum==0) :
-            z = A_mul(Q[-1])
-        else:
-            z = A_mul_ncut(Q[-1])
+        z = A_mul(Q[-1])
         alpha = np.dot(Q[-1], z)
         alphas.append(alpha)
 
@@ -180,14 +177,14 @@ def save_seg_file(labels, image_shape, output_path, image_name="image"):
     print(f"✅ File SEG đã lưu: {output_path}")
 
 
-def normalized_cuts_eigsh(imagename, image_path, output_path, k, sigma_i, sigma_x, ncut_or_quantum):
+def normalized_cuts_eigsh(imagename, image_path, output_path, k, sigma_i, sigma_x):
     image = io.imread(image_path)
     image = color.gray2rgb(image) if image.ndim == 2 else image[:, :, :3] if image.shape[2] == 4 else image
     image = image / 255.0
 
     W_coo = compute_weight_matrix_coo_knn(image, sigma_i, sigma_x)
     start = time.perf_counter()
-    vecs = compute_ncut_lanczos(W_coo, k, max_iter=k+20, ncut_or_quantum)
+    vecs = compute_ncut_lanczos(W_coo, k, max_iter=k+20)
 
     end = time.perf_counter()
 
@@ -205,11 +202,7 @@ def main(name):
     excel_path = os.path.join("/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/QuantumNcut/log"+numbers[0]+".xlsx")  # file Excel lưu
     output_path = "/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/QuantumNcut/out"+numbers[0]
     os.makedirs(output_path, exist_ok=True)
-
-    excel_path_ncut = os.path.join("/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/Ncut/log"+numbers[0]+".xlsx")  # file Excel lưu
-    output_path_ncut = "/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/Ncut/out"+numbers[0]
-    os.makedirs(output_path_ncut, exist_ok=True)
-    
+ 
     if not os.path.isdir(input_path):
         print(f"❌ Thư mục {input_path} không tồn tại!")
         exit()
@@ -232,7 +225,7 @@ def main(name):
         
         save_image_name = os.path.join(output_path, f"{os.path.splitext(file_name)[0]}")
 
-        bat_dau, ket_thuc = normalized_cuts_eigsh(file_name, image_path, save_image_name, k, sigma_i, sigma_x, ncut_or_quantum = 0)
+        bat_dau, ket_thuc = normalized_cuts_eigsh(file_name, image_path, save_image_name, k, sigma_i, sigma_x)
         new_df = pd.DataFrame( [(file_name, bat_dau, ket_thuc)], columns=["Tên file", "Bắt đầu", "Kết thúc"] )
 
         if os.path.exists(excel_path):
@@ -251,29 +244,8 @@ def main(name):
                 )
         else:
             new_df.to_excel(excel_path, index=False)
-
-        save_image_name = os.path.join(output_path_ncut, f"{os.path.splitext(file_name)[0]}")
-        bat_dau, ket_thuc = normalized_cuts_eigsh(file_name, image_path, save_image_name, k, sigma_i, sigma_x, ncut_or_quantum = 1)
-        new_df = pd.DataFrame( [(file_name, bat_dau, ket_thuc)], columns=["Tên file", "Bắt đầu", "Kết thúc"] )
-
-        if os.path.exists(excel_path_ncut):
-            with pd.ExcelWriter(
-                excel_path_ncut,
-                engine="openpyxl",
-                mode="a",
-                if_sheet_exists="overlay"
-            ) as writer:
-                startrow = writer.sheets[next(iter(writer.sheets))].max_row
-                new_df.to_excel(
-                    writer,
-                    index=False,
-                    header=False,
-                    startrow=startrow
-                )
-        else:
-            new_df.to_excel(excel_path_ncut, index=False)        
-        
-        print(f"📝 Đã ghi tiếp vào: {excel_path_ncut}")
+       
+        print(f"📝 Đã ghi tiếp vào: {excel_path}")
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
