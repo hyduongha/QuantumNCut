@@ -198,7 +198,7 @@ def normalized_cuts_eigsh(imagename, image_path, output_path, k, sigma_i, sigma_
 def main(name):
 
     numbers = re.findall(r'\d+', name)
-    input_path = "/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/in/" + name
+    input_path = "/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/" + name
     excel_path = os.path.join("/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/QuantumNcut/log"+numbers[0]+".xlsx")  # file Excel lưu
     output_path = "/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/QuantumNcut/out"+numbers[0]
     os.makedirs(output_path, exist_ok=True)
