@@ -12,7 +12,7 @@ from sklearn.neighbors import NearestNeighbors
 import pandas as pd
 import re
 import argparse
-def compute_weight_matrix_coo_knn(image, sigma_i, sigma_x, k_neighbors=10):
+def compute_weight_matrix_coo_knn(image, sigma_i, sigma_x, k_neighbors=30):
     h, w, c = image.shape
     N = h * w
 
@@ -199,8 +199,9 @@ def main(name):
 
     numbers = re.findall(r'\d+', name)
     input_path = "/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/in/" + name
-    excel_path = os.path.join("/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/log"+numbers[0]+".xlsx")  # file Excel lưu
-    output_path = "/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/out"+numbers[0]
+    excel_path = os.path.join("/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/QuantumNcut/log"+numbers[0]+".xlsx")  # file Excel lưu
+    output_path = "/content/drive/MyDrive/15531_b08_20230224_yinchuan_id3129_2736x3648_K4/QuantumNcut/out"+numbers[0]
+    os.makedirs(output_path, exist_ok=True)
     
     if not os.path.isdir(input_path):
         print(f"❌ Thư mục {input_path} không tồn tại!")
