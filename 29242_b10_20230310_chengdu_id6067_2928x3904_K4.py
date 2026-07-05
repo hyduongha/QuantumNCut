@@ -200,7 +200,7 @@ def main(name):
     numbers = re.findall(r'\d+', name)
     input_path = "/content/drive/MyDrive/29242_b10_20230310_chengdu_id6067_2928x3904_K4/" + name
     excel_path = os.path.join("/content/drive/MyDrive/29242_b10_20230310_chengdu_id6067_2928x3904_K4/QuantumNcut/log"+numbers[0]+".xlsx")  # file Excel lưu
-    output_path = "/content/drive/MyDrive/29242_b10_20230310_chengdu_id6067_2928x3904_K4/QuantumNcut/out"+numbers[0]
+    output_path = "/content/drive/MyDrive/29242_b10_20230310_chengdu_id6067_2928x3904_K4/out"+numbers[0]
     os.makedirs(output_path, exist_ok=True)
  
     if not os.path.isdir(input_path):
