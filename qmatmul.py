@@ -58,6 +58,8 @@ def qmatmul_qiskit(origin_L, origin_v):
 
 
 def prepare_state(v):
+    from qoop.core.ansatz import WchainCNOT_xyz
+    from qoop.compilation.qsp import QuantumStatePreparation
     num_qubits = int(np.log2(len(v)))
     qsp = QuantumStatePreparation(
         u = WchainCNOT_xyz(num_qubits, num_qubits), 
