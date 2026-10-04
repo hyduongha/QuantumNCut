@@ -1,6 +1,6 @@
 import qiskit
-from qoop.core.ansatz import WchainCNOT_xyz
-from qoop.compilation.qsp import QuantumStatePreparation
+# from qoop.core.ansatz import WchainCNOT_xyz
+# from qoop.compilation.qsp import QuantumStatePreparation
 import numpy as np
 from qiskit_aer import Aer
 from qiskit_aer.primitives import Sampler, Estimator
