@@ -1,0 +1,20 @@
+# Dependencies for preprocessing, classical segmentation, and evaluation.
+# Unpinned versions below are not a record of the original experiment environment.
+numpy
+scipy
+scikit-learn
+scikit-image
+Pillow
+pandas
+openpyxl
+
+# Quantum simulation: retain the Qiskit 1.x API used by qmatmul.py.
+qiskit==1.4.4
+qiskit-aer==0.16.0
+
+# Local modules (qmatmul.py, memqoop/) are not pip packages.
+# IMPORTANT: qmatmul.py also imports qoop at module level.
+# If only qmatmul_qiskit is used, move the two qoop imports inside
+# prepare_state(), which uses them. This avoids requiring qoop for that path.
+# If prepare_state() or qmatmul() is used, a compatible qoop installation
+# is additionally required; its version has not been verified here.
